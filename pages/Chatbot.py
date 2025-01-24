@@ -12,6 +12,9 @@ from pydub import AudioSegment
 from pydub.playback import play
 import numpy as np
 import requests
+import sounddevice as sd
+import wave
+import io
 
 # Load the model and vectorizer
 with open("ipl_bot_model.pkl", "rb") as file:
@@ -63,19 +66,38 @@ def main():
             play(audio)
             os.remove(fp.name)
 
-    # Function to handle voice input
+    # Function to handle voice input using sounddevice
     def handle_voice_input():
-        recognizer = sr.Recognizer()
-        with sr.Microphone() as source:
-            st.write("Listening...")
-            audio_input = recognizer.listen(source)
+        st.write("Listening...")
+
+        # Record audio using sounddevice
+        samplerate = 16000  # Audio sample rate
+        duration = 5  # Duration in seconds
+
+        # Record audio
+        audio_data = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype='int16')
+        sd.wait()
+
+        # Save the audio as a WAV file
+        audio_io = io.BytesIO()
+        with wave.open(audio_io, 'wb') as wf:
+            wf.setnchannels(1)
+            wf.setsampwidth(2)
+            wf.setframerate(samplerate)
+            wf.writeframes(audio_data.tobytes())
         
-        try:
-            user_question = recognizer.recognize_google(audio_input)
-            st.text(f"You: {user_question}")
-            respond_to_input(user_question)
-        except sr.UnknownValueError:
-            st.warning("Sorry, I could not understand what you said.")
+        audio_io.seek(0)
+
+        # Recognize the speech
+        recognizer = sr.Recognizer()
+        with sr.AudioFile(audio_io) as source:
+            audio = recognizer.record(source)
+            try:
+                user_question = recognizer.recognize_google(audio)
+                st.text(f"You: {user_question}")
+                respond_to_input(user_question)
+            except sr.UnknownValueError:
+                st.warning("Sorry, I could not understand what you said.")
 
     user_question = st.text_input("You: ")
 
