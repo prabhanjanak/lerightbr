@@ -1,0 +1,10 @@
+streamlit
+pandas
+scikit-learn
+streamlit-webrtc
+pydub
+gtts
+speechrecognition
+python-docx
+pyaudio
+scipy
