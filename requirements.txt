@@ -6,5 +6,5 @@ pydub
 gtts
 speechrecognition
 python-docx
-pyaudio
 scipy
+sounddevice
