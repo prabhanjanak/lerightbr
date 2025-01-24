@@ -7,4 +7,4 @@ gtts
 speechrecognition
 python-docx
 scipy
-sounddevice
+portaudio19-dev
