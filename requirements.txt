@@ -8,3 +8,4 @@ speechrecognition
 python-docx
 pyaudio
 scipy
+sounddevice
